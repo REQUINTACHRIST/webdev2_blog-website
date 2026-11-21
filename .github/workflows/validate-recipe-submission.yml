@@ -1,0 +1,34 @@
+name: Validate recipe submissions
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  validate:
+    if: startsWith(github.event.issue.title, 'Recipe submission:')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const { recipeFromIssue } = require('./scripts/recipe-issue');
+            const issue = context.payload.issue;
+            let message;
+            try {
+              recipeFromIssue(issue);
+              message = 'Submission received. It passed validation and is awaiting maintainer approval. A maintainer can publish it by adding the `recipe-approved` label.';
+            } catch (error) {
+              message = `Submission failed validation: ${error.message}`;
+            }
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: issue.number,
+              body: message
+            });
+            if (message.startsWith('Submission failed')) core.setFailed(message);

@@ -1,0 +1,56 @@
+name: Publish community post
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  publish:
+    if: startsWith(github.event.issue.title, 'Community post:')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const { postFromIssue } = require('./scripts/community-post');
+            const issue = context.payload.issue;
+            try {
+              postFromIssue(issue);
+              const labels = await github.paginate(github.rest.issues.listLabelsForRepo, {
+                ...context.repo,
+                per_page: 100
+              });
+              if (!labels.some(label => label.name === 'community-post')) {
+                try {
+                  await github.rest.issues.createLabel({
+                    ...context.repo,
+                    name: 'community-post',
+                    color: 'E87939',
+                    description: 'Community food and cooking experiences'
+                  });
+                } catch (error) {
+                  if (error.status !== 422) throw error;
+                }
+              }
+              await github.rest.issues.addLabels({
+                ...context.repo,
+                issue_number: issue.number,
+                labels: ['community-post']
+              });
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: issue.number,
+                body: 'Your post is now in the Ian’s Kitchen community feed. You can use this issue to reply to comments.'
+              });
+            } catch (error) {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: issue.number,
+                body: `Post could not be published: ${error.message}`
+              });
+              core.setFailed(error.message);
