@@ -1,4 +1,4 @@
-"use strict";
+"use trict";
 
 var RECIPE_MARKER = /<!-- IANS_COOKING_RECIPE_V1\s+([A-Za-z0-9+/]+={0,2})\s+-->/g;
 var CATEGORIES = new Set(["Ulam", "Merienda", "Desserts", "Soups", "Rice Dishes", "Street Food"]);
