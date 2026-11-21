@@ -1,4 +1,4 @@
-name: Validate recipe submissions
+/name: Validate recipe submissions
 
 on:
   issues:
