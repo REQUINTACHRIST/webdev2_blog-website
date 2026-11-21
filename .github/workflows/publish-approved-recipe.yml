@@ -1,4 +1,4 @@
-/name: Publish approved recipe
+name: Publish approved recipe
 
 on:
   issues:
