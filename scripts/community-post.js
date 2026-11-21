@@ -1,4 +1,4 @@
-"use strict";
+/"use strict";
 
 var POST_MARKER = /<!-- IANS_COOKING_POST_V1\s+([A-Za-z0-9+/]+={0,2})\s+-->/g;
 
