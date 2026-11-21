@@ -1,4 +1,4 @@
-"use strict";
+"use trict";
 
 var test = require("node:test");
 var assert = require("node:assert/strict");
